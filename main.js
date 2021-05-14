@@ -45,11 +45,9 @@ const getAnArticleById = (req, res) => {
   }
 };
 
-app.get(`/articles/:id`, getAnArticleById);
-
 const getArticlesByAuthor = (req, res) => {
   const author = req.query.author;
-  const found = articles.find((element, i) => {
+  const found = articles.filter((element, i) => {
     console.log(element.author, author);
     return element.author === author;
   });
@@ -63,6 +61,7 @@ const getArticlesByAuthor = (req, res) => {
 };
 
 app.get(`/articles/search_1`, getArticlesByAuthor);
+app.get(`/articles/:id`, getAnArticleById);
 
 const createNewArticle = (req, res) => {
   const newArticle = {
@@ -76,6 +75,29 @@ const createNewArticle = (req, res) => {
 };
 app.post("/articles", createNewArticle);
 
+const updateAnArticleById = (req, res) => {
+  const id = req.params.id;
+  let index;
+  const found = articles.find((element, i) => {
+    index = i;
+    return element.id === Number(id);
+  });
+
+  if (found) {
+    articles[index] = {
+      title: req.body.title,
+      description: req.body.description,
+      author: req.body.author,
+    };
+    res.status(200);
+    res.json(found);
+  } else {
+    res.status(404);
+    res.json("not found");
+  }
+};
+
+app.put("/articles/:id", updateAnArticleById);
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
