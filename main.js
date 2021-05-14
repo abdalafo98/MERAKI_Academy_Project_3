@@ -135,24 +135,15 @@ const deleteArticlesByAuthor = (req, res) => {
     success: true,
     massage: `Success Delete article with id => ${author}`,
   };
-  const found = articles.filter((element, i) => {
-    return element.author === author;
+  articles.map((element, index) => {
+    if (element.author === author) {
+      articles.splice(index, 1);
+    } else {
+      res.json("not found");
+    }
   });
-
-  if (found) {
-    articles.map((element, index) => {
-      if (element.author === author) {
-        articles.splice(index, 1);
-      } else {
-        res.json("not found");
-      }
-    });
-    res.status(200);
-    res.json(message);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
+  res.status(200);
+  res.json(message);
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
