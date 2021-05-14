@@ -115,7 +115,11 @@ const deleteArticleById = (req, res) => {
   });
 
   if (found) {
-    articles.splice(index, 1);
+    articles.map((element, index) => {
+      if (element.id == id) {
+        articles.splice(index, 1);
+      }
+    });
     res.status(200);
     res.json(message);
   } else {
