@@ -111,11 +111,11 @@ const deleteArticleById = (req, res) => {
   let index;
   const found = articles.filter((element, i) => {
     index = i;
-    return element.id === Number(id);
+    return element.id == id;
   });
 
   if (found) {
-    articles.splice(index - 1, 1);
+    articles.splice(index, 1);
     res.status(200);
     res.json(message);
   } else {
@@ -136,8 +136,10 @@ const deleteArticlesByAuthor = (req, res) => {
   });
 
   if (found) {
-    found.map((element, index) => {
-      articles.splice(index, 1);
+    articles.map((element, index) => {
+      if (element.author === author) {
+        articles.splice(index, 1);
+      }
     });
     res.status(200);
     res.json(message);
