@@ -98,6 +98,30 @@ const updateAnArticleById = (req, res) => {
 };
 
 app.put("/articles/:id", updateAnArticleById);
+
+const deleteArticleById = (req, res) => {
+  const id = req.params.id;
+  const message = {
+    success: true,
+    massage: `Success Delete article with id => ${id}`,
+  };
+  let index;
+  const found = articles.filter((element, i) => {
+    index = i;
+    return element.id === Number(id);
+  });
+
+  if (found) {
+    articles.splice(index - 1, 1);
+    res.status(200);
+    res.json(message);
+  } else {
+    res.status(404);
+    res.json("not found");
+  }
+};
+app.delete("/articles/:id", deleteArticleById);
+
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
