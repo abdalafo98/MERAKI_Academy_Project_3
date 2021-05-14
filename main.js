@@ -34,7 +34,7 @@ app.get("/articles", getAllArticles);
 const getAnArticleById = (req, res) => {
   const id = req.params.id;
   const found = articles.find((element, i) => {
-    return element.id === Number(id);
+    return element.id == id;
   });
   if (found) {
     res.status(200);
@@ -82,17 +82,18 @@ const updateAnArticleById = (req, res) => {
   let index;
   const found = articles.find((element, i) => {
     index = i;
-    return element.id === Number(id);
+    return element.id == id;
   });
 
   if (found) {
     articles[index] = {
+      id: id,
       title: req.body.title,
       description: req.body.description,
       author: req.body.author,
     };
     res.status(200);
-    res.json(found);
+    res.json(articles[index]);
   } else {
     res.status(404);
     res.json("not found");
