@@ -31,7 +31,7 @@ const getAllArticles = (req, res) => {
 app.get("/articles", getAllArticles);
 
 const getAnArticleById = (req, res) => {
-  const id = req.query.id;
+  const id = req.params.id;
   const found = articles.find((element, i) => {
     console.log(element.id, element.id === id);
     return element.id === Number(id);
@@ -121,6 +121,29 @@ const deleteArticleById = (req, res) => {
   }
 };
 app.delete("/articles/:id", deleteArticleById);
+
+const deleteArticlesByAuthor = (req, res) => {
+  const author = req.params.author;
+  const message = {
+    success: true,
+    massage: `Success Delete article with id => ${author}`,
+  };
+  let index;
+  const found = articles.filter((element, i) => {
+    index = i;
+    return element.author === author;
+  });
+
+  if (found) {
+    articles.splice(index, 1);
+    res.status(200);
+    res.json(message);
+  } else {
+    res.status(404);
+    res.json("not found");
+  }
+};
+app.delete("/articles", deleteArticlesByAuthor);
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
