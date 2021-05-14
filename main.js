@@ -143,6 +143,8 @@ const deleteArticlesByAuthor = (req, res) => {
     articles.map((element, index) => {
       if (element.author === author) {
         articles.splice(index, 1);
+      } else {
+        res.json("not found");
       }
     });
     res.status(200);
