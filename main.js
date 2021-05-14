@@ -1,4 +1,5 @@
 const express = require("express");
+const uuid = require("uuidv4");
 const app = express();
 const port = 5000;
 
@@ -123,7 +124,7 @@ const deleteArticleById = (req, res) => {
 app.delete("/articles/:id", deleteArticleById);
 
 const deleteArticlesByAuthor = (req, res) => {
-  const author = req.params.author;
+  const author = req.body.author;
   const message = {
     success: true,
     massage: `Success Delete article with id => ${author}`,
@@ -135,7 +136,9 @@ const deleteArticlesByAuthor = (req, res) => {
   });
 
   if (found) {
-    articles.splice(index, 1);
+    found.map((element, index) => {
+      articles.splice(index, 1);
+    });
     res.status(200);
     res.json(message);
   } else {
