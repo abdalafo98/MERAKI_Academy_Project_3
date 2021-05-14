@@ -1,5 +1,5 @@
 const express = require("express");
-const uuid = require("uuidv4");
+const { uuid } = require("uuidv4");
 const app = express();
 const port = 5000;
 
@@ -34,7 +34,6 @@ app.get("/articles", getAllArticles);
 const getAnArticleById = (req, res) => {
   const id = req.params.id;
   const found = articles.find((element, i) => {
-    console.log(element.id, element.id === id);
     return element.id === Number(id);
   });
   if (found) {
@@ -48,8 +47,9 @@ const getAnArticleById = (req, res) => {
 
 const getArticlesByAuthor = (req, res) => {
   const author = req.query.author;
+  console.log(author);
   const found = articles.filter((element, i) => {
-    console.log(element.author, author);
+    // console.log(element.author, author);
     return element.author === author;
   });
   if (found) {
@@ -66,6 +66,7 @@ app.get(`/articles/:id`, getAnArticleById);
 
 const createNewArticle = (req, res) => {
   const newArticle = {
+    id: uuid(),
     title: req.body.title,
     description: req.body.description,
     author: req.body.author,
@@ -129,9 +130,7 @@ const deleteArticlesByAuthor = (req, res) => {
     success: true,
     massage: `Success Delete article with id => ${author}`,
   };
-  let index;
   const found = articles.filter((element, i) => {
-    index = i;
     return element.author === author;
   });
 
