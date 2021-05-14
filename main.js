@@ -31,7 +31,25 @@ const getAllArticles = () => {
   });
 };
 
-getAllArticles();
+const getAnArticleById = () => {
+  app.get(`/articles/:id`, (req, res) => {
+    const id = req.params.id;
+    const found = articles.find((element, i) => {
+      console.log(element.id, element.id === id);
+      return element.id == id;
+    });
+    if (found) {
+      res.status(200);
+      res.json(found);
+    } else {
+      res.status(404);
+      res.json("not found");
+    }
+  });
+};
+
+// getAllArticles();
+getAnArticleById();
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
