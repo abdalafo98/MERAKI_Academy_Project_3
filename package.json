@@ -20,6 +20,7 @@
   "homepage": "https://github.com/abdalafo98/MERAKI_Academy_Project_3#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "mongoose": "^5.12.9",
     "uuidv4": "^6.2.8"
   }
 }

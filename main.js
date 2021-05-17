@@ -1,5 +1,7 @@
 const express = require("express");
 const { uuid } = require("uuidv4");
+const db = require("./db");
+const { User, Article } = require("./schema");
 const app = express();
 const port = 5000;
 
@@ -154,6 +156,27 @@ const deleteArticlesByAuthor = (req, res) => {
 };
 app.delete("/articles", deleteArticlesByAuthor);
 
+const createNewAuthor = (req, res) => {
+  const { firstName, lastName, age, country, email, password } = req.body;
+  const user1 = new User({
+    firstName,
+    lastName,
+    age,
+    country,
+    email,
+    password,
+  });
+  user1
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+app.post("/users", createNewAuthor);
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
