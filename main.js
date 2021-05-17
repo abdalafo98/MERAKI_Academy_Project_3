@@ -28,8 +28,14 @@ const articles = [
 app.use(express.json());
 
 const getAllArticles = (req, res) => {
-  res.status(200);
-  res.json(articles);
+  Article.find({})
+    .then((result) => {
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 app.get("/articles", getAllArticles);
 
