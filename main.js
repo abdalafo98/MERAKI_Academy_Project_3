@@ -67,15 +67,18 @@ app.get(`/articles/search_1`, getArticlesByAuthor);
 app.get(`/articles/:id`, getAnArticleById);
 
 const createNewArticle = (req, res) => {
-  const newArticle = {
-    id: uuid(),
-    title: req.body.title,
-    description: req.body.description,
-    author: req.body.author,
-  };
-  articles.push(newArticle);
-  res.status(201);
-  res.json(newArticle);
+  const { id, title, description, author } = req.body;
+  const newArticle = new Article({ id, title, description, author });
+
+  newArticle
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 app.post("/articles", createNewArticle);
 
