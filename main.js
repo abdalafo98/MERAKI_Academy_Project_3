@@ -4,7 +4,7 @@ const db = require("./db");
 const { User, Article } = require("./schema");
 const app = express();
 const port = 5000;
-
+////////////////////////////
 const articles = [
   {
     id: 1,
@@ -26,6 +26,7 @@ const articles = [
   },
 ];
 app.use(express.json());
+////////////////////////////
 
 const getAllArticles = (req, res) => {
   Article.find({})
@@ -38,43 +39,65 @@ const getAllArticles = (req, res) => {
     });
 };
 app.get("/articles", getAllArticles);
+////////////////////////////
 
 const getAnArticleById = (req, res) => {
   const id = req.params.id;
-  const found = articles.find((element, i) => {
-    return element.id == id;
-  });
-  if (found) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
+  console.log(id);
+  Article.find({ author: id })
+    .populate("users")
+    .exec()
+    .then((result) => {
+      console.log(result);
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json("not found");
+    });
+  // const found = articles.find((element, i) => {
+  //   return element.id == id;
+  // });
+  // if (found) {
+  //   res.status(200);
+  //   res.json(found);
+  // } else {
+  //   res.status(404);
+  //   res.json("not found");
+  // }
 };
 
-const getArticlesByAuthor = (req, res) => {
+const getArticlesByAuthor = async (req, res) => {
   const author = req.query.author;
-  console.log(author);
-  const found = articles.filter((element, i) => {
-    // console.log(element.author, author);
-    return element.author === author;
-  });
-  if (found) {
-    res.status(200);
-    res.json(found);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
+  let id;
+  await User.findOne({ firstName: author })
+    .then((result) => {
+      id = result._id;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  console.log(id, "id");
+  Article.find({ author: id })
+    .then((result) => {
+      console.log(result);
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404);
+      res.json("not found");
+    });
 };
 
 app.get(`/articles/search_1`, getArticlesByAuthor);
 app.get(`/articles/:id`, getAnArticleById);
 
 const createNewArticle = (req, res) => {
-  const { id, title, description, author } = req.body;
-  const newArticle = new Article({ id, title, description, author });
+  const { title, description, author } = req.body;
+  const newArticle = new Article({ title, description, author });
 
   newArticle
     .save()
@@ -88,27 +111,45 @@ const createNewArticle = (req, res) => {
 };
 app.post("/articles", createNewArticle);
 
-const updateAnArticleById = (req, res) => {
-  const id = req.params.id;
-  let index;
-  const found = articles.find((element, i) => {
-    index = i;
-    return element.id == id;
-  });
+const updateAnArticleById = async (req, res) => {
+  // const id = req.params.id;
+  // let index;
+  // const found = articles.find((element, i) => {
+  //   index = i;
+  //   return element.id == id;
+  // });
 
-  if (found) {
-    articles[index] = {
-      id: id,
-      title: req.body.title,
-      description: req.body.description,
-      author: req.body.author,
-    };
-    res.status(200);
-    res.json(articles[index]);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
+  // if (found) {
+  //   articles[index] = {
+  //     id: id,
+  //     title: req.body.title,
+  //     description: req.body.description,
+  //     author: req.body.author,
+  //   };
+  //   res.status(200);
+  //   res.json(articles[index]);
+  // } else {
+  //   res.status(404);
+  //   res.json("not found");
+  // }
+
+  const id = req.params.id;
+  console.log(id);
+  await Article.find({ author: id })
+    .then((result) => {
+      result = {
+        title: req.body.title,
+        description: req.body.description,
+        author: req.body.author,
+      };
+      console.log(result);
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json("not found");
+    });
 };
 
 app.put("/articles/:id", updateAnArticleById);

@@ -4,6 +4,7 @@ const users = new mongoose.Schema({
   firstName: { type: String },
   lastName: { type: String },
   age: { type: Number },
+  country: { type: String },
   email: { type: String },
   password: { type: String },
 });
