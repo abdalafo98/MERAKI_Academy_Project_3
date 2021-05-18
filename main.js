@@ -201,7 +201,25 @@ const login = async (req, res) => {
 };
 
 app.post("/login", login);
-
+///////////////////////////////////////////
+const createNewComment = (req, res) => {
+  const { comment, commenter } = req.body;
+  const newComment = new Comment({ comment, commenter });
+  newComment
+    .save()
+    .then((result) => {
+      res.json(result);
+      res.status(201);
+      Article.update(
+        { _id: req.params.id },
+        { $push: { comments: result._id } }
+      ).exec();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+app.post("/articles/:id/comments", createNewComment);
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
