@@ -26,7 +26,7 @@ const articles = [
   },
 ];
 app.use(express.json());
-////////////////////////////
+////////////////////////////////////////////////////////
 
 const getAllArticles = (req, res) => {
   Article.find({})
@@ -39,7 +39,7 @@ const getAllArticles = (req, res) => {
     });
 };
 app.get("/articles", getAllArticles);
-////////////////////////////
+/////////////////////////////////////////////////
 
 const getAnArticleById = (req, res) => {
   const id = req.params.id;
@@ -56,18 +56,8 @@ const getAnArticleById = (req, res) => {
       res.status(404);
       res.json("not found");
     });
-  // const found = articles.find((element, i) => {
-  //   return element.id == id;
-  // });
-  // if (found) {
-  //   res.status(200);
-  //   res.json(found);
-  // } else {
-  //   res.status(404);
-  //   res.json("not found");
-  // }
 };
-
+///////////////////////////////////////////////////////////////
 const getArticlesByAuthor = async (req, res) => {
   const author = req.query.author;
   let id;
@@ -94,7 +84,7 @@ const getArticlesByAuthor = async (req, res) => {
 
 app.get(`/articles/search_1`, getArticlesByAuthor);
 app.get(`/articles/:id`, getAnArticleById);
-
+//////////////////////////////////////////////////////////////////////
 const createNewArticle = (req, res) => {
   const { title, description, author } = req.body;
   const newArticle = new Article({ title, description, author });
@@ -110,77 +100,40 @@ const createNewArticle = (req, res) => {
     });
 };
 app.post("/articles", createNewArticle);
-
-const updateAnArticleById = async (req, res) => {
-  // const id = req.params.id;
-  // let index;
-  // const found = articles.find((element, i) => {
-  //   index = i;
-  //   return element.id == id;
-  // });
-
-  // if (found) {
-  //   articles[index] = {
-  //     id: id,
-  //     title: req.body.title,
-  //     description: req.body.description,
-  //     author: req.body.author,
-  //   };
-  //   res.status(200);
-  //   res.json(articles[index]);
-  // } else {
-  //   res.status(404);
-  //   res.json("not found");
-  // }
-
+/////////////////////////////////////////////////////////////////////////
+const updateAnArticleById = (req, res) => {
   const id = req.params.id;
   console.log(id);
-  await Article.find({ author: id })
+  Article.findOneAndUpdate({ author: id }, req.body)
     .then((result) => {
-      result = {
-        title: req.body.title,
-        description: req.body.description,
-        author: req.body.author,
-      };
       console.log(result);
       res.status(200);
       res.json(result);
     })
     .catch((err) => {
       res.status(404);
-      res.json("not found");
+      res.json(err);
     });
 };
 
 app.put("/articles/:id", updateAnArticleById);
-
+///////////////////////////////////////////////////////////////////
 const deleteArticleById = (req, res) => {
   const id = req.params.id;
-  const message = {
-    success: true,
-    massage: `Success Delete article with id => ${id}`,
-  };
-  let index;
-  const found = articles.filter((element, i) => {
-    index = i;
-    return element.id == id;
-  });
-
-  if (found) {
-    articles.map((element, index) => {
-      if (element.id == id) {
-        articles.splice(index, 1);
-      }
+  console.log(id);
+  Article.deleteOne({ author: id })
+    .then((result) => {
+      console.log(result);
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err);
     });
-    res.status(200);
-    res.json(message);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
 };
 app.delete("/articles/:id", deleteArticleById);
-
+////////////////////////////////////////////////////////////////////
 const deleteArticlesByAuthor = (req, res) => {
   const author = req.body.author;
   const message = {
@@ -205,7 +158,7 @@ const deleteArticlesByAuthor = (req, res) => {
   }
 };
 app.delete("/articles", deleteArticlesByAuthor);
-
+////////////////////////////////////////////////////////////////////
 const createNewAuthor = (req, res) => {
   const { firstName, lastName, age, country, email, password } = req.body;
   const user1 = new User({
