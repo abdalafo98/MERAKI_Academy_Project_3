@@ -1,7 +1,7 @@
 const express = require("express");
 const { uuid } = require("uuidv4");
 const db = require("./db");
-const { User, Article } = require("./schema");
+const { User, Article, Comment } = require("./schema");
 const app = express();
 const port = 5000;
 ////////////////////////////
@@ -121,7 +121,7 @@ app.put("/articles/:id", updateAnArticleById);
 const deleteArticleById = (req, res) => {
   const id = req.params.id;
   console.log(id);
-  Article.deleteOne({ author: id })
+  Article.deleteOne({ _id: id })
     .then((result) => {
       console.log(result);
       res.status(200);
@@ -134,28 +134,28 @@ const deleteArticleById = (req, res) => {
 };
 app.delete("/articles/:id", deleteArticleById);
 ////////////////////////////////////////////////////////////////////
-const deleteArticlesByAuthor = (req, res) => {
+const deleteArticlesByAuthor = async (req, res) => {
   const author = req.body.author;
-  const message = {
-    success: true,
-    massage: `Success Delete article with id => ${author}`,
-  };
-  const found = articles.filter((element, i) => {
-    return element.author === author;
-  });
+  console.log(author);
 
-  if (found) {
-    articles.map((element, index) => {
-      if (element.author === author) {
-        articles.splice(index, 1);
-      }
+  let id;
+  await User.findOne({ firstName: author })
+    .then((result) => {
+      id = result._id;
+    })
+    .catch((err) => {
+      console.log(err);
     });
-    res.status(200);
-    res.json(message);
-  } else {
-    res.status(404);
-    res.json("not found");
-  }
+  Article.deleteMany({ author: id })
+    .then((result) => {
+      console.log(result);
+      res.status(200);
+      res.json(result);
+    })
+    .catch((err) => {
+      res.status(404);
+      res.json(err);
+    });
 };
 app.delete("/articles", deleteArticlesByAuthor);
 ////////////////////////////////////////////////////////////////////
@@ -179,7 +179,29 @@ const createNewAuthor = (req, res) => {
       console.log(err);
     });
 };
+
 app.post("/users", createNewAuthor);
+////////////////////////////////////////////////////////////////
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  await User.findOne({ email: email, password: password })
+    .then((result) => {
+      if (result) {
+        res.status(200);
+        res.json("Valid login credentials");
+      } else {
+        res.json("Invalid login credentials");
+        res.status(401);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+app.post("/login", login);
+
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
