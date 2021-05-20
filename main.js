@@ -1,7 +1,11 @@
 const express = require("express");
 const { uuid } = require("uuidv4");
+require("dotenv").config();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const db = require("./db");
-const { User, Article, Comment } = require("./schema");
+const SECRET = process.env.SECRET;
+const { User, Article, Comment, Role } = require("./schema");
 const app = express();
 const port = 5000;
 ////////////////////////////
@@ -185,14 +189,31 @@ app.post("/users", createNewAuthor);
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  await User.findOne({ email: email, password: password })
+  await User.findOne({ email: email })
     .then((result) => {
       if (result) {
-        res.status(200);
-        res.json("Valid login credentials");
+        // console.log(result);
+        console.log(result.password);
+        console.log(password);
+        bcrypt.compare(password, result.password, (err, result_1) => {
+          console.log(result_1, "were");
+          if (result_1) {
+            const payload = { userId: result._id, country: result.country };
+            const options = { expiresIn: "60m" };
+            console.log(secret);
+            const token = jwt.sign(payload, SECRET, options);
+            res.json(token);
+          } else {
+            console.log(result_1);
+
+            res.json({
+              message: "The password you’ve entered is incorrect",
+              status: 403,
+            });
+          }
+        });
       } else {
-        res.json("Invalid login credentials");
-        res.status(401);
+        res.json({ message: "The email doesn't exist", status: 404 });
       }
     })
     .catch((err) => {
@@ -202,6 +223,28 @@ const login = async (req, res) => {
 
 app.post("/login", login);
 ///////////////////////////////////////////
+const authentication = (req, res, next) => {
+  if (!req.headers.authorization) {
+    res.status(404);
+    res.json("no token");
+  }
+  console.log(req.headers.authorization);
+  const token = req.headers.authorization.split(" ")[1];
+  console.log();
+  try {
+    const ver = jwt.verify(token, SECRET);
+    if (ver) {
+      req.token = ver;
+      next();
+    }
+  } catch (err) {
+    res.status(403);
+    return res.json({
+      message: "the token is invalid or expired",
+      status: 403,
+    });
+  }
+};
 const createNewComment = (req, res) => {
   const { comment, commenter } = req.body;
   const newComment = new Comment({ comment, commenter });
@@ -219,7 +262,7 @@ const createNewComment = (req, res) => {
       console.log(err);
     });
 };
-app.post("/articles/:id/comments", createNewComment);
+app.post("/articles/:id/comments", authentication, createNewComment);
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
