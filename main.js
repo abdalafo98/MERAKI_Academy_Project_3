@@ -198,7 +198,11 @@ const login = async (req, res) => {
         bcrypt.compare(password, result.password, (err, result_1) => {
           console.log(result_1, "were");
           if (result_1) {
-            const payload = { userId: result._id, country: result.country };
+            const payload = {
+              userId: result._id,
+              country: result.country,
+              permissions: ["MANAGE_USERS", "CREATE_COMMENTS"],
+            };
             const options = { expiresIn: "60m" };
             console.log(secret);
             const token = jwt.sign(payload, SECRET, options);
