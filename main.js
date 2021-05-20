@@ -204,7 +204,6 @@ const login = async (req, res) => {
               permissions: ["MANAGE_USERS", "CREATE_COMMENTS"],
             };
             const options = { expiresIn: "60m" };
-            console.log(secret);
             const token = jwt.sign(payload, SECRET, options);
             res.json(token);
           } else {
@@ -249,6 +248,22 @@ const authentication = (req, res, next) => {
     });
   }
 };
+
+const authorization = (str) => {
+  return (req, res, next) => {
+    const permissions = req.token.permissions;
+    console.log(permissions);
+    const forbidden = {
+      message: "forbidden ",
+      status: 403,
+    };
+    if (permissions.includes(str)) {
+      return next();
+    }
+    res.status(403);
+    res.json(forbidden);
+  };
+};
 const createNewComment = (req, res) => {
   const { comment, commenter } = req.body;
   const newComment = new Comment({ comment, commenter });
@@ -266,7 +281,12 @@ const createNewComment = (req, res) => {
       console.log(err);
     });
 };
-app.post("/articles/:id/comments", authentication, createNewComment);
+app.post(
+  "/articles/:id/comments",
+  authentication,
+  authorization(`CREATE_COMMENTS`),
+  createNewComment
+);
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
